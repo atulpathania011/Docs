@@ -1,7 +1,9 @@
+<datalist id="items-dl">{% for it in items_data %}<option value="{{ it.name }}" label="{{ it.hint }}"></option>{% endfor %}</datalist>
+<datalist id="units-dl">{% for u in UNIT_OPTIONS %}<option value="{{ u }}"></option>{% endfor %}</datalist>
 <div class="table-wrap">
 <table class="data items">
   <thead><tr>
-    <th>Item description</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>GST</th><th class="num">Amount incl. GST</th><th></th>
+    <th>Item description</th><th>HSN/SAC</th><th>Unit</th><th>Qty</th><th>Rate</th><th>GST</th><th class="num">Amount incl. GST</th><th></th>
   </tr></thead>
   <tbody id="items">
     {% for r in rows %}{% include "partials/_item_row.html" %}{% endfor %}
@@ -9,7 +11,11 @@
 </table>
 </div>
 <template id="row-tpl">{% include "partials/_item_row.html" with r=blank_row %}</template>
-<button type="button" class="btn btn-quiet" id="add-row">Add item</button>
+<div class="actions">
+  <button type="button" class="btn btn-quiet" id="add-row">Add item</button>
+</div>
+<p class="muted small" id="item-note">{% if items_data %}Start typing an item name to pick a saved item.{% else %}No saved items yet. Tick the box below to add the items you type here to your item list.{% endif %}</p>
+<label class="check"><input type="checkbox" id="save_items" name="save_items" value="1" {% if v.save_items %}checked{% endif %}> Save new items to the item list</label>
 
 <dl class="sums" id="preview">
   <div><dt>Taxable value</dt><dd id="p-taxable">0.00</dd></div>

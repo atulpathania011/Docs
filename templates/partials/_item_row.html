@@ -1,6 +1,7 @@
 <tr>
-  <td><input type="text" name="desc" value="{{ r.desc }}" aria-label="Item description"></td>
+  <td><input type="text" name="desc" list="items-dl" value="{{ r.desc }}" autocomplete="off" aria-label="Item description" placeholder="Type to pick a saved item"></td>
   <td><input type="text" name="hsn" value="{{ r.hsn }}" inputmode="numeric" aria-label="HSN or SAC code"></td>
+  <td><input type="text" name="unit" list="units-dl" value="{{ r.unit }}" maxlength="10" aria-label="Unit"></td>
   <td><input type="number" name="qty" value="{{ r.qty }}" step="any" min="0" aria-label="Quantity"></td>
   <td><input type="number" name="rate" value="{{ r.rate }}" step="any" min="0" aria-label="Rate"></td>
   <td><select name="gst" aria-label="GST rate">
