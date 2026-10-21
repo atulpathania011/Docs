@@ -1,3 +1,4 @@
+
 """Calculus settings.
 
 Storage is split into four SQLite files:
@@ -98,12 +99,35 @@ def sqlite(name):
     }
 
 
-DATABASES = {
-    "default": sqlite("users.sqlite3"),
-    "credentials": sqlite("credentials.sqlite3"),
-    "invoices": sqlite("invoices.sqlite3"),
-    "purchases": sqlite("purchases.sqlite3"),
-}
+import os
+import dj_database_url
+
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.parse(
+            os.environ["USERS_DATABASE_URL"],
+            conn_max_age=600,
+        ),
+        "credentials": dj_database_url.parse(
+            os.environ["CREDENTIALS_DATABASE_URL"],
+            conn_max_age=600,
+        ),
+        "invoices": dj_database_url.parse(
+            os.environ["INVOICES_DATABASE_URL"],
+            conn_max_age=600,
+        ),
+        "purchases": dj_database_url.parse(
+            os.environ["PURCHASES_DATABASE_URL"],
+            conn_max_age=600,
+        ),
+    }
+else:
+    DATABASES = {
+        "default": sqlite("users.sqlite3"),
+        "credentials": sqlite("credentials.sqlite3"),
+        "invoices": sqlite("invoices.sqlite3"),
+        "purchases": sqlite("purchases.sqlite3"),
+    }
 
 DATABASE_ROUTERS = ["core.routers.AppRouter"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
