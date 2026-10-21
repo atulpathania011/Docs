@@ -21,7 +21,7 @@ def env_list(name, default):
 
 SECRET_KEY = os.environ.get("CALCULUS_SECRET_KEY", "change-this-secret-before-going-live")
 DEBUG = os.environ.get("CALCULUS_DEBUG") == "1"
-ALLOWED_HOSTS = env_list("CALCULUS_ALLOWED_HOSTS", "127.0.0.1,localhost")
+ALLOWED_HOSTS = env_list("docs-v4mh.onrender.com","CALCULUS_ALLOWED_HOSTS", "127.0.0.1,localhost")
 CSRF_TRUSTED_ORIGINS = env_list("CALCULUS_CSRF_ORIGINS", "")  # e.g. https://app.yourdomain.com
 
 INSTALLED_APPS = [
