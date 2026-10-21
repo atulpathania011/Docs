@@ -4,6 +4,7 @@ APP_DB = {
     "directory": "default",      # data/users.sqlite3       - companies, profiles, access areas
     "sales": "invoices",         # data/invoices.sqlite3    - invoices and customers
     "purchases": "purchases",    # data/purchases.sqlite3   - purchase bills and suppliers
+    "inventory": "inventory",    # data/inventory.sqlite3   - the item list
 }
 
 

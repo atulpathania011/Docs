@@ -64,6 +64,7 @@ class DocumentBase(models.Model):
 class LineItemBase(models.Model):
     description = models.CharField(max_length=200)
     hsn = models.CharField(max_length=8, blank=True)
+    unit = models.CharField(max_length=10, blank=True)
     qty = models.DecimalField(max_digits=16, decimal_places=3)
     rate = models.DecimalField(max_digits=18, decimal_places=4)
     gst_rate = models.DecimalField(max_digits=5, decimal_places=2)

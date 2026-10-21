@@ -4,8 +4,8 @@ from decimal import Decimal
 AREAS = {
     "sales":     {"title": "Sales & invoices", "desc": "Create and edit tax invoices and manage customers."},
     "purchase":  {"title": "Purchases",        "desc": "Record and edit supplier bills and manage suppliers."},
-    "returns":   {"title": "GST returns",      "desc": "GSTR-1, GSTR-3B and reconciliation with GSTR-2B."},
-    "inventory": {"title": "Inventory",        "desc": "Items, HSN/SAC codes, stock and rates."},
+    "returns":   {"title": "GST returns",      "desc": "GSTR-1 and GSTR-3B working summaries from your invoices and purchases."},
+    "inventory": {"title": "Inventory",        "desc": "Item list with HSN/SAC, unit, GST % and rates, offered when you make invoices and purchases."},
     "reports":   {"title": "Reports",          "desc": "Sales, purchases and net GST summary. Read-only."},
     "admin":     {"title": "Admin & company",  "desc": "Company details, users and which areas each person can open."},
 }
@@ -36,4 +36,7 @@ GST_RATES = [Decimal(r) for r in ("0", "0.25", "3", "5", "12", "18", "28", "40")
 DEFAULT_GST = "18"
 
 GSTIN_RE = re.compile(r"^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$")
+# Common unit codes (UQC) suggested in the unit box. Any short code is accepted.
+UNIT_OPTIONS = ["NOS", "PCS", "KGS", "GMS", "LTR", "MLT", "MTR", "CMS", "BOX", "PAC", "SET", "DOZ", "PRS",
+                "BAG", "BTL", "CTN", "ROL", "SQM", "SQF", "TON", "QTL", "UNT", "OTH"]
 COMPANY_FIELDS = ("name", "gstin", "address", "state", "phone", "email", "bank")

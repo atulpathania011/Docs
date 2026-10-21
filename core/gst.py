@@ -81,9 +81,9 @@ def parse_party(post, label):
 def parse_lines(post):
     """Return (items, errors) from the repeated desc/hsn/qty/rate/gst form fields."""
     items, errors = [], []
-    cols = [post.getlist(k) for k in ("desc", "hsn", "qty", "rate", "gst")]
-    for desc, hsn, qty_s, rate_s, gst_s in zip(*cols):
-        desc, hsn = desc.strip(), hsn.strip()
+    cols = [post.getlist(k) for k in ("desc", "hsn", "unit", "qty", "rate", "gst")]
+    for desc, hsn, unit, qty_s, rate_s, gst_s in zip(*cols):
+        desc, hsn, unit = desc.strip(), hsn.strip(), unit.strip().upper()
         if not (desc or qty_s.strip() or rate_s.strip()):
             continue  # ignore completely blank rows
         try:
@@ -101,8 +101,11 @@ def parse_lines(post):
         if hsn and not re.fullmatch(r"\d{4,8}", hsn):
             errors.append("HSN/SAC must be 4 to 8 digits.")
             break
+        if unit and not re.fullmatch(r"[A-Z0-9]{1,10}", unit):
+            errors.append("Unit must be a short code such as NOS or KGS (letters and numbers, up to 10).")
+            break
         taxable = money(qty * rate)
-        items.append({"description": desc, "hsn": hsn, "qty": qty, "rate": rate, "gst_rate": gst,
+        items.append({"description": desc, "hsn": hsn, "unit": unit, "qty": qty, "rate": rate, "gst_rate": gst,
                       "taxable": taxable, "tax": money(taxable * gst / 100)})
     if not items and not errors:
         errors.append("Add at least one item.")
