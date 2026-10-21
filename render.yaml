@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: calculus-django
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn config.wsgi:application
