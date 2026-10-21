@@ -1,4 +1,3 @@
-```python
 """Calculus settings.
 
 Storage is split into four SQLite files:
