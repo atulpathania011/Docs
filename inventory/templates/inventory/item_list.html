@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Item list - Calculus{% endblock %}
+{% block content %}
+<main class="page wide">
+  <p><a href="{% url 'core:dashboard' %}">Back to home</a></p>
+  <div class="head-row">
+    <div><h1>Item list</h1><p class="muted">Saved items pop up when you type in the item box on an invoice or purchase, and fill in HSN/SAC, unit, GST % and rate for you.</p></div>
+    <a class="btn" href="{% url 'inventory:item_create' %}">Add item</a>
+  </div>
+  {% include "partials/_flash.html" %}
+  <form class="search" method="get" action="{% url 'inventory:item_list' %}">
+    <label for="q" class="sr">Search items</label>
+    <input id="q" name="q" type="text" value="{{ q }}" placeholder="Search by item name or HSN/SAC">
+    <button class="btn btn-quiet" type="submit">Search</button>
+  </form>
+  {% if rows %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Item</th><th>HSN/SAC</th><th>Unit</th><th class="num">GST %</th><th class="num">Sale rate</th><th class="num">Purchase rate</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><a href="{% url 'inventory:item_edit' r.item.pk %}">{{ r.item.name }}</a></td>
+        <td>{{ r.item.hsn }}</td><td>{{ r.item.unit }}</td><td class="num">{{ r.gst }}%</td>
+        <td class="num">{{ r.sale }}</td><td class="num">{{ r.purchase }}</td>
+        <td class="num"><form method="post" action="{% url 'inventory:item_delete' r.item.pk %}" onsubmit="return confirm('Delete this item? Invoices and purchases already made are not changed.')">
+          {% csrf_token %}<button class="btn btn-quiet btn-small" type="submit">Delete</button></form></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="placeholder">{% if q %}No items match &ldquo;{{ q }}&rdquo;.{% else %}No items yet. Click <strong>Add item</strong>, or tick &ldquo;Save new items&rdquo; when you make an invoice or purchase.{% endif %}</div>
+  {% endif %}
+</main>
+{% endblock %}

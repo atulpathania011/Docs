@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% if item %}Edit item{% else %}Add item{% endif %} - Calculus{% endblock %}
+{% block content %}
+<main class="page">
+  <p><a href="{% url 'inventory:item_list' %}">Back to the item list</a></p>
+  <h1>{% if item %}Edit item{% else %}Add item{% endif %}</h1>
+  {% include "partials/_flash.html" %}
+  <form class="panel" method="post" action="{% if item %}{% url 'inventory:item_edit' item.pk %}{% else %}{% url 'inventory:item_create' %}{% endif %}">
+    {% csrf_token %}
+    <label for="name">Item name</label>
+    <input id="name" name="name" type="text" maxlength="200" value="{{ v.name }}" required>
+    <div class="grid3">
+      <div><label for="hsn">HSN/SAC (4 to 8 digits)</label><input id="hsn" name="hsn" type="text" inputmode="numeric" maxlength="8" value="{{ v.hsn }}"></div>
+      <div><label for="unit">Unit</label><input id="unit" name="unit" type="text" list="units-dl" maxlength="10" value="{{ v.unit }}" placeholder="e.g. NOS, KGS">
+        <datalist id="units-dl">{% for u in UNIT_OPTIONS %}<option value="{{ u }}"></option>{% endfor %}</datalist></div>
+      <div><label for="gst">GST %</label>
+        <select id="gst" name="gst">{% for g in gst_options %}<option value="{{ g }}" {% if g == v.gst %}selected{% endif %}>{{ g }}%</option>{% endfor %}</select></div>
+    </div>
+    <div class="grid2e">
+      <div><label for="sale_rate">Sale rate (used on invoices)</label><input id="sale_rate" name="sale_rate" type="number" step="any" min="0" value="{{ v.sale_rate }}"></div>
+      <div><label for="purchase_rate">Purchase rate (used on purchases)</label><input id="purchase_rate" name="purchase_rate" type="number" step="any" min="0" value="{{ v.purchase_rate }}"></div>
+    </div>
+    <p class="muted small">Rates are only a starting point: you can change them on each invoice or purchase.</p>
+    <button class="btn" type="submit">Save item</button>
+  </form>
+</main>
+{% endblock %}

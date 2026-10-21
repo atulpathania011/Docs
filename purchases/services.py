@@ -4,6 +4,7 @@ from django.utils import timezone
 from core.documents import apply_cleaned, company_snapshot, make_items, parse_document
 from core.numbering import next_number
 from core.parties import save_party_if_new
+from inventory.services import save_items_if_new
 
 from .models import Purchase, PurchaseItem, Supplier
 
@@ -33,7 +34,7 @@ def duplicate_bill(company_id, cleaned, exclude_pk=None):
     return qs.exists()
 
 
-def create_purchase(company, me, cleaned, save_supplier):
+def create_purchase(company, me, cleaned, save_supplier, save_items=False):
     with transaction.atomic(using="purchases"):
         p = Purchase(company_id=company.id, company_snapshot=company_snapshot(company), created_by_id=me.id,
                      number=next_number(Purchase, company.id, cleaned["date"], "PUR"),
@@ -43,10 +44,12 @@ def create_purchase(company, me, cleaned, save_supplier):
         PurchaseItem.objects.bulk_create(make_items(PurchaseItem, "purchase", p, cleaned["items"]))
         if save_supplier:
             save_party_if_new(Supplier, company.id, cleaned)
+    if save_items:
+        save_items_if_new(company.id, cleaned["items"], "purchase")
     return p
 
 
-def update_purchase(p, me, cleaned):
+def update_purchase(p, me, cleaned, save_items=False):
     with transaction.atomic(using="purchases"):
         apply_cleaned(p, cleaned)
         p.bill_number = cleaned["bill_number"]
@@ -55,4 +58,6 @@ def update_purchase(p, me, cleaned):
         p.save()
         p.items.all().delete()
         PurchaseItem.objects.bulk_create(make_items(PurchaseItem, "purchase", p, cleaned["items"]))
+    if save_items:
+        save_items_if_new(p.company_id, cleaned["items"], "purchase")
     return p

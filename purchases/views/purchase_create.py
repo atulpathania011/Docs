@@ -22,7 +22,8 @@ def purchase_create(request):
             errors = ["This supplier's bill number is already recorded."]
         if not errors:
             try:
-                p = create_purchase(company, request.me, cleaned, bool(request.POST.get("save_party")))
+                p = create_purchase(company, request.me, cleaned, bool(request.POST.get("save_party")),
+                                    bool(request.POST.get("save_items")))
             except IntegrityError:
                 errors = ["Another purchase was saved at the same moment. Click Save purchase again."]
             else:

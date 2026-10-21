@@ -45,5 +45,6 @@
 {% endblock %}
 {% block scripts %}
 {{ parties|json_script:"parties-data" }}
+{{ items_data|json_script:"items-data" }}
 <script src="{% static 'js/document_form.js' %}"></script>
 {% endblock %}

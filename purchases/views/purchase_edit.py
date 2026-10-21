@@ -23,7 +23,7 @@ def purchase_edit(request, pk):
         if not errors and duplicate_bill(p.company_id, cleaned, exclude_pk=p.pk):
             errors = ["This supplier's bill number is already recorded."]
         if not errors:
-            update_purchase(p, request.me, cleaned)
+            update_purchase(p, request.me, cleaned, bool(request.POST.get("save_items")))
             messages.success(request, f"Purchase {p.number} updated.")
             return after_save(request, "purchases:purchase_detail", p.pk, next_url)
         for e in errors:
