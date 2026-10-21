@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load calculus_tags %}
+{% block title %}Sales & invoices - Calculus{% endblock %}
+{% block content %}
+<main class="page wide">
+  <p><a href="{% url 'core:dashboard' %}">Back to dashboard</a></p>
+  <div class="head-row">
+    <div><h1>Sales &amp; invoices</h1><p class="muted">The 100 latest invoices. Open the Sales statement from the home page for a full period.</p></div>
+    <div class="actions">
+      <a class="btn btn-quiet" href="{% url 'sales:customer_list' %}">Customers</a>
+      <a class="btn" href="{% url 'sales:invoice_create' %}">New invoice</a>
+    </div>
+  </div>
+  {% include "partials/_flash.html" %}
+  {% if not company_ready %}
+  <p class="flash flash-error" role="alert">Your company details are not set yet, so invoices cannot be created.
+    {% if 'admin' in me.areas %}<a href="{% url 'directory:company_details' %}">Add company details</a>{% else %}Ask an administrator to add them.{% endif %}</p>
+  {% endif %}
+
+  <form class="search" method="get" action="{% url 'sales:invoice_list' %}">
+    <label for="q" class="sr">Search invoices</label>
+    <input id="q" name="q" type="text" value="{{ q }}" placeholder="Search by invoice no, customer or GSTIN">
+    <button class="btn btn-quiet" type="submit">Search</button>
+  </form>
+
+  {% if invoices %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Invoice no</th><th>Date</th><th>Customer</th><th>GSTIN</th><th class="num">Taxable</th><th class="num">GST</th><th class="num">Total</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for i in invoices %}
+      <tr class="{% if i.is_cancelled %}cancelled-row{% endif %}">
+        <td><a href="{% url 'sales:invoice_detail' i.pk %}">{{ i.number }}</a></td>
+        <td>{{ i.date|date:"d-m-Y" }}</td><td>{{ i.party_name }}</td><td>{{ i.party_gstin|default:"Unregistered" }}</td>
+        <td class="num">{{ i.taxable|inr }}</td><td class="num">{{ i.gst|inr }}</td><td class="num">{{ i.total|inr }}</td>
+        <td>{% if i.is_cancelled %}<span class="badge">Cancelled</span>{% endif %}</td>
+        <td class="num">{% if not i.is_cancelled %}<a href="{% url 'sales:invoice_edit' i.pk %}">Edit</a>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="placeholder">{% if q %}No invoices match &ldquo;{{ q }}&rdquo;.{% else %}No invoices yet. Click <strong>New invoice</strong> to create the first one.{% endif %}</div>
+  {% endif %}
+</main>
+{% endblock %}
