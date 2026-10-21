@@ -20,7 +20,8 @@ def invoice_create(request):
         cleaned, errors = parse_document(request.POST, company.state, "Customer")
         if not errors:
             try:
-                inv = create_invoice(company, request.me, cleaned, bool(request.POST.get("save_party")))
+                inv = create_invoice(company, request.me, cleaned, bool(request.POST.get("save_party")),
+                                     bool(request.POST.get("save_items")))
             except IntegrityError:
                 errors = ["Another invoice was saved at the same moment. Click Save invoice again."]
             else:

@@ -30,7 +30,7 @@
       <tbody>
       {% for it in items %}
         <tr><td>{{ forloop.counter }}</td><td>{{ it.description }}</td><td>{{ it.hsn }}</td>
-          <td class="num">{{ it.qty|num }}</td><td class="num">{{ it.rate|inr }}</td><td class="num">{{ it.taxable|inr }}</td>
+          <td class="num">{{ it.qty|num }} {{ it.unit }}</td><td class="num">{{ it.rate|inr }}</td><td class="num">{{ it.taxable|inr }}</td>
           <td class="num">{{ it.gst_rate|num }}%</td><td class="num">{{ it.tax|inr }}</td></tr>
       {% endfor %}
       </tbody>

@@ -24,7 +24,7 @@ def invoice_edit(request, pk):
     if request.method == "POST":
         cleaned, errors = parse_document(request.POST, company_state, "Customer")
         if not errors:
-            update_invoice(inv, request.me, cleaned)
+            update_invoice(inv, request.me, cleaned, bool(request.POST.get("save_items")))
             messages.success(request, f"Invoice {inv.number} updated.")
             return after_save(request, "sales:invoice_detail", inv.pk, next_url)
         for e in errors:

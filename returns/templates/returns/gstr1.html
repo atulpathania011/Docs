@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load calculus_tags %}
+{% block title %}GSTR-1 {{ p.label }} - Calculus{% endblock %}
+{% block content %}
+<main class="page wide">
+  <p><a href="{% url 'returns:home' %}">Back to GST returns</a></p>
+  <div class="head-row">
+    <div><h1>GSTR-1 summary</h1><p class="muted">Outward supplies for {{ p.label }} ({{ p.start|date:"d-m-Y" }} to {{ p.end|date:"d-m-Y" }})</p></div>
+    <a class="btn btn-quiet" href="{% url 'returns:gstr3b' %}?period={{ p.value }}">Open GSTR-3B for this month</a>
+  </div>
+  {% include "partials/_flash.html" %}
+  {% include "returns/_period_form.html" with action=request.path %}
+
+  <dl class="sums">
+    <div><dt>Invoices</dt><dd>{{ r.invoice_count }}</dd></div>
+    <div><dt>Taxable value (taxed items)</dt><dd>{{ r.totals.taxable|inr }}</dd></div>
+    <div><dt>Total tax</dt><dd>{{ r.totals.tax|inr }}</dd></div>
+  </dl>
+
+  <h2>Table 4 &ndash; B2B (customers with a GSTIN) <a class="small" href="{% url 'returns:export' 'b2b' %}?period={{ p.value }}">Download CSV</a></h2>
+  {% if r.b2b %}<div class="table-wrap"><table class="data">
+    <thead><tr><th>GSTIN</th><th>Customer</th><th>Invoice no</th><th>Date</th><th class="num">Invoice value</th><th>Place of supply</th><th class="num">Rate</th><th class="num">Taxable</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead>
+    <tbody>{% for x in r.b2b %}<tr><td>{{ x.gstin }}</td><td>{{ x.name }}</td><td>{{ x.number }}</td><td>{{ x.date|date:"d-m-Y" }}</td><td class="num">{{ x.doc_total|inr }}</td><td>{{ x.pos }} - {{ x.pos|state_name }}</td><td class="num">{{ x.rate|num }}%</td><td class="num">{{ x.taxable|inr }}</td><td class="num">{{ x.igst|inr }}</td><td class="num">{{ x.cgst|inr }}</td><td class="num">{{ x.sgst|inr }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<div class="placeholder">No B2B invoices in this period.</div>{% endif %}
+
+  <h2>Table 5 &ndash; B2C large (inter-state, unregistered, over &#8377;2,50,000)</h2>
+  {% if r.b2c_large %}<div class="table-wrap"><table class="data">
+    <thead><tr><th>Invoice no</th><th>Date</th><th class="num">Invoice value</th><th>Place of supply</th><th class="num">Rate</th><th class="num">Taxable</th><th class="num">IGST</th></tr></thead>
+    <tbody>{% for x in r.b2c_large %}<tr><td>{{ x.number }}</td><td>{{ x.date|date:"d-m-Y" }}</td><td class="num">{{ x.doc_total|inr }}</td><td>{{ x.pos }} - {{ x.pos|state_name }}</td><td class="num">{{ x.rate|num }}%</td><td class="num">{{ x.taxable|inr }}</td><td class="num">{{ x.igst|inr }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<div class="placeholder">None in this period.</div>{% endif %}
+
+  <h2>Table 7 &ndash; B2C small (all other unregistered sales) <a class="small" href="{% url 'returns:export' 'b2c' %}?period={{ p.value }}">Download CSV (large + small)</a></h2>
+  {% if r.b2c_small %}<div class="table-wrap"><table class="data">
+    <thead><tr><th>Place of supply</th><th class="num">Rate</th><th class="num">Taxable</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead>
+    <tbody>{% for x in r.b2c_small %}<tr><td>{{ x.pos }} - {{ x.pos|state_name }}</td><td class="num">{{ x.rate|num }}%</td><td class="num">{{ x.taxable|inr }}</td><td class="num">{{ x.igst|inr }}</td><td class="num">{{ x.cgst|inr }}</td><td class="num">{{ x.sgst|inr }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<div class="placeholder">None in this period.</div>{% endif %}
+
+  <h2>Table 8 &ndash; Nil-rated / exempt (items at 0%)</h2>
+  {% if r.nil %}<div class="table-wrap"><table class="data">
+    <thead><tr><th>Supply</th><th>To</th><th class="num">Value</th></tr></thead>
+    <tbody>{% for x in r.nil %}<tr><td>{% if x.supply == 'intra' %}Intra-state{% else %}Inter-state{% endif %}</td><td>{% if x.registered %}Registered persons{% else %}Unregistered persons{% endif %}</td><td class="num">{{ x.taxable|inr }}</td></tr>{% endfor %}</tbody>
+    <tfoot><tr><th colspan="2">Total</th><th class="num">{{ r.nil_total|inr }}</th></tr></tfoot>
+  </table></div><p class="muted small">Items entered at 0% cannot be told apart as nil-rated, exempt or non-GST, so they are all shown together.</p>{% else %}<div class="placeholder">None in this period.</div>{% endif %}
+
+  <h2>Table 12 &ndash; HSN-wise summary <a class="small" href="{% url 'returns:export' 'hsn' %}?period={{ p.value }}">Download CSV</a></h2>
+  {% if r.hsn %}<div class="table-wrap"><table class="data">
+    <thead><tr><th>HSN/SAC</th><th>Description</th><th>Unit</th><th class="num">Quantity</th><th class="num">Rate</th><th class="num">Total value</th><th class="num">Taxable</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead>
+    <tbody>{% for x in r.hsn %}<tr><td>{{ x.hsn|default:"(none)" }}</td><td>{{ x.desc }}</td><td>{{ x.unit }}</td><td class="num">{{ x.qty|num }}</td><td class="num">{{ x.rate|num }}%</td><td class="num">{{ x.value|inr }}</td><td class="num">{{ x.taxable|inr }}</td><td class="num">{{ x.igst|inr }}</td><td class="num">{{ x.cgst|inr }}</td><td class="num">{{ x.sgst|inr }}</td></tr>{% endfor %}</tbody>
+  </table></div><p class="muted small">Items without an HSN/SAC code show as &ldquo;(none)&rdquo;. Add the code to the item before filing. The description shown is the first one used for that code.</p>{% else %}<div class="placeholder">No items in this period.</div>{% endif %}
+
+  <h2>Table 13 &ndash; Documents issued</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Document</th><th>From</th><th>To</th><th class="num">Total</th><th class="num">Cancelled</th></tr></thead>
+    <tbody><tr><td>Invoices for outward supply</td><td>{{ docs.first|default:"-" }}</td><td>{{ docs.last|default:"-" }}</td><td class="num">{{ docs.count }}</td><td class="num">{{ docs.cancelled }}</td></tr></tbody>
+  </table></div>
+
+  <p class="muted small">Not included: credit and debit notes, exports, reverse charge and cess. Check this summary against the GST portal before filing.</p>
+</main>
+{% endblock %}

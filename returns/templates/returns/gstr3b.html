@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load calculus_tags %}
+{% block title %}GSTR-3B {{ p.label }} - Calculus{% endblock %}
+{% block content %}
+<main class="page wide">
+  <p><a href="{% url 'returns:home' %}">Back to GST returns</a></p>
+  <div class="head-row">
+    <div><h1>GSTR-3B summary</h1><p class="muted">Tax summary for {{ p.label }} ({{ p.start|date:"d-m-Y" }} to {{ p.end|date:"d-m-Y" }})</p></div>
+    <div class="actions">
+      <a class="btn btn-quiet" href="{% url 'returns:gstr1' %}?period={{ p.value }}">Open GSTR-1 for this month</a>
+      <a class="btn btn-quiet" href="{% url 'returns:export' 'gstr3b' %}?period={{ p.value }}&ob_igst={{ opening.igst }}&ob_cgst={{ opening.cgst }}&ob_sgst={{ opening.sgst }}">Download CSV</a>
+    </div>
+  </div>
+  {% include "partials/_flash.html" %}
+  {% include "returns/_period_form.html" with action=request.path with_opening=True %}
+
+  <dl class="sums">
+    <div><dt>Output tax</dt><dd>{{ r.out_tax|inr }}</dd></div>
+    <div><dt>Input credit used</dt><dd>{{ r.itc_total|inr }}</dd></div>
+    <div><dt>Tax to pay in cash</dt><dd>{{ r.payable_total|inr }}</dd></div>
+  </dl>
+
+  <h2>Table 3.1 &ndash; Outward supplies</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Nature of supply</th><th class="num">Taxable value</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead>
+    <tbody>
+      <tr><td>(a) Outward taxable supplies (other than zero rated, nil rated, exempt)</td><td class="num">{{ r.outward.taxable|inr }}</td><td class="num">{{ r.outward.igst|inr }}</td><td class="num">{{ r.outward.cgst|inr }}</td><td class="num">{{ r.outward.sgst|inr }}</td></tr>
+      <tr><td>(c) Other outward supplies (nil rated, exempt)</td><td class="num">{{ r.nil_value|inr }}</td><td class="num">-</td><td class="num">-</td><td class="num">-</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Table 3.2 &ndash; Inter-state supplies to unregistered persons</h2>
+  {% if r.unreg %}<div class="table-wrap"><table class="data">
+    <thead><tr><th>Place of supply</th><th class="num">Taxable value</th><th class="num">IGST</th></tr></thead>
+    <tbody>{% for u in r.unreg %}<tr><td>{{ u.pos }} - {{ u.pos|state_name }}</td><td class="num">{{ u.taxable|inr }}</td><td class="num">{{ u.igst|inr }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<div class="placeholder">None in this period.</div>{% endif %}
+
+  <h2>Table 4 &ndash; Input tax credit</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Details</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead>
+    <tbody>
+      <tr><td>(A)(5) All other ITC &ndash; purchases from registered suppliers</td><td class="num">{{ r.itc.igst|inr }}</td><td class="num">{{ r.itc.cgst|inr }}</td><td class="num">{{ r.itc.sgst|inr }}</td></tr>
+      <tr><td>Credit brought forward from earlier months (you entered this above)</td><td class="num">{{ r.opening.igst|inr }}</td><td class="num">{{ r.opening.cgst|inr }}</td><td class="num">{{ r.opening.sgst|inr }}</td></tr>
+    </tbody>
+    <tfoot><tr><th>Credit available</th><th class="num">{{ r.credit.igst|inr }}</th><th class="num">{{ r.credit.cgst|inr }}</th><th class="num">{{ r.credit.sgst|inr }}</th></tr></tfoot>
+  </table></div>
+  {% if r.no_itc_tax %}<p class="muted small">Tax of {{ r.no_itc_tax|inr }} on purchases from suppliers without a GSTIN is not counted as credit.</p>{% endif %}
+
+  <h2>Table 6.1 &ndash; Payment of tax</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th></th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead>
+    <tbody>
+      <tr><td>Tax payable (output tax)</td><td class="num">{{ r.outward.igst|inr }}</td><td class="num">{{ r.outward.cgst|inr }}</td><td class="num">{{ r.outward.sgst|inr }}</td></tr>
+      <tr><td>Still to pay in cash after using credit</td><td class="num">{{ r.payable.igst|inr }}</td><td class="num">{{ r.payable.cgst|inr }}</td><td class="num">{{ r.payable.sgst|inr }}</td></tr>
+    </tbody>
+    <tfoot><tr><th>Credit left to carry forward</th><th class="num">{{ r.left.igst|inr }}</th><th class="num">{{ r.left.cgst|inr }}</th><th class="num">{{ r.left.sgst|inr }}</th></tr></tfoot>
+  </table></div>
+  <p class="muted small">Credit is used in the order the GST rules allow: IGST credit first against IGST, then CGST, then SGST; CGST credit against CGST, then IGST; SGST credit against SGST, then IGST. Every purchase from a registered supplier is treated as eligible credit, and interest, late fee and reverse charge are not included. Check this against GSTR-2B and your accountant before filing.</p>
+</main>
+{% endblock %}

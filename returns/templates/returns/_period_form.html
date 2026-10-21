@@ -1,0 +1,10 @@
+<form class="filters panel" method="get" action="{{ action }}">
+  <div><label for="period">Return period</label>
+    <select id="period" name="period">{% for value, label in periods %}<option value="{{ value }}" {% if value == p.value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  {% if with_opening %}
+  <div><label for="ob_igst">IGST credit brought forward</label><input id="ob_igst" name="ob_igst" type="number" step="0.01" min="0" value="{{ opening.igst }}"></div>
+  <div><label for="ob_cgst">CGST credit brought forward</label><input id="ob_cgst" name="ob_cgst" type="number" step="0.01" min="0" value="{{ opening.cgst }}"></div>
+  <div><label for="ob_sgst">SGST credit brought forward</label><input id="ob_sgst" name="ob_sgst" type="number" step="0.01" min="0" value="{{ opening.sgst }}"></div>
+  {% endif %}
+  <button class="btn" type="submit">Show</button>
+</form>

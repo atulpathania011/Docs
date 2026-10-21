@@ -17,6 +17,10 @@
   var byLabel = {}, byGstin = {};
   parties.forEach(function (c) { byLabel[c.label] = c; if (c.gstin) byGstin[c.gstin] = c; });
 
+  var items = JSON.parse(document.getElementById('items-data').textContent);
+  var byName = {};
+  items.forEach(function (it) { byName[it.name.toLowerCase()] = it; });
+
   function n(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; }
   function f(x) { return x.toFixed(2); }
 
@@ -60,6 +64,22 @@
       recalc();
     }
     if (v.length === 15 && byGstin[v]) fill(byGstin[v]);
+  });
+
+  // Picking a saved item fills that row's HSN/SAC, unit, rate and GST % (quantity is left alone).
+  body.addEventListener('input', function (e) {
+    if (e.target.name !== 'desc') return;
+    var it = byName[e.target.value.trim().toLowerCase()];
+    if (!it) return;
+    var tr = e.target.closest('tr');
+    tr.querySelector('[name=hsn]').value = it.hsn;
+    tr.querySelector('[name=unit]').value = it.unit;
+    if (it.rate !== '') tr.querySelector('[name=rate]').value = it.rate;
+    var gst = tr.querySelector('[name=gst]');
+    if (gst.querySelector('option[value="' + it.gst + '"]')) gst.value = it.gst;
+    var note = document.getElementById('item-note');
+    if (note) note.textContent = 'Filled from saved item: ' + it.name + '.';
+    recalc();
   });
 
   document.getElementById('add-row').addEventListener('click', function () {

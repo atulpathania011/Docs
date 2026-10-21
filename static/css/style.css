@@ -145,3 +145,9 @@ table.data td form{margin:0}
 table.data tfoot th{background:var(--paper);color:var(--ink);border-top:2px solid var(--ink)}
 .head-row .actions{flex-wrap:wrap;justify-content:flex-end}
 .flash-warning{background:#fff7e6;color:#7a4b00;border:1px solid #f0d28a}
+
+/* statements nested under their project area on the home page */
+.area-row.child{margin-left:1.5rem;border-left:3px solid var(--mint);background:rgba(255,255,255,.55)}
+.area-row.child .area-title{font-weight:500;font-size:1rem}
+table.items td:nth-child(3) input{min-width:4.5rem;width:5.5rem}
+table.items td:nth-child(2) input{min-width:6rem}
